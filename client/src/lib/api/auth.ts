@@ -20,6 +20,11 @@ export const authApi = {
     const response = await apiClient.get('/auth/me');
     return response.data;
   },
+
+  updateProfile: async (data: Partial<User>): Promise<{ status: string; data: { user: User } }> => {
+    const response = await apiClient.put('/auth/me', data);
+    return response.data;
+  },
 };
 
 // Re-export types for convenience

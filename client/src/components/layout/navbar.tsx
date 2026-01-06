@@ -1,4 +1,5 @@
 import { Moon, Sun, User, LogOut, Bell } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useTheme } from '@/context/theme-context';
 import { useAuth } from '@/context/auth-context';
 import { Button } from '@/components/ui/button';
@@ -14,6 +15,7 @@ import {
 export function Navbar() {
   const { theme, setTheme } = useTheme();
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   const toggleTheme = () => {
     setTheme(theme === 'dark' ? 'light' : 'dark');
@@ -76,15 +78,20 @@ export function Navbar() {
 
           {/* User menu */}
           <div className="flex items-center gap-3 pl-3 border-l border-border">
-            <div className="text-right">
-              <p className="text-sm font-semibold">{user?.name || 'User'}</p>
-              <p className="text-xs text-muted-foreground">{user?.email || 'user@example.com'}</p>
-            </div>
-            <Avatar className="w-10 h-10 border-2 border-primary">
-              <div className="w-full h-full bg-gradient-to-br from-primary to-accent-purple-600 flex items-center justify-center">
-                <User className="w-5 h-5 text-white" />
+            <button
+              onClick={() => navigate('/profile')}
+              className="flex items-center gap-3 hover:opacity-80 transition-opacity cursor-pointer"
+            >
+              <div className="text-right">
+                <p className="text-sm font-semibold">{user?.name || 'User'}</p>
+                <p className="text-xs text-muted-foreground">{user?.email || 'user@example.com'}</p>
               </div>
-            </Avatar>
+              <Avatar className="w-10 h-10 border-2 border-primary">
+                <div className="w-full h-full bg-gradient-to-br from-primary to-accent-purple-600 flex items-center justify-center">
+                  <User className="w-5 h-5 text-white" />
+                </div>
+              </Avatar>
+            </button>
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>

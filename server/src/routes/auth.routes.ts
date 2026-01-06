@@ -10,6 +10,7 @@ router.post('/login', (req, res) => authController.login(req, res));
 
 // Protected routes
 router.get('/me', authenticate, (req, res) => authController.getMe(req, res));
+router.put('/me', authenticate, (req, res) => authController.updateMe(req, res));
 router.post('/logout', authenticate, (req, res) => authController.logout(req, res));
 
 export default router;

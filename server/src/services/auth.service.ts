@@ -15,6 +15,15 @@ interface LoginData {
   password: string;
 }
 
+interface UpdateProfileData {
+  name?: string;
+  email?: string;
+  companyName?: string;
+  industry?: string;
+  teamSize?: string;
+  avatar?: string;
+}
+
 export class AuthService {
   async register(data: RegisterData) {
     // Check if user already exists
@@ -98,12 +107,53 @@ export class AuthService {
       id: user._id.toString(),
       email: user.email,
       name: user.name,
+      avatar: user.avatar,
       companyName: user.companyName,
       industry: user.industry,
       teamSize: user.teamSize,
       role: user.role,
       onboarded: user.onboarded,
       createdAt: user.createdAt,
+    };
+  }
+
+  async updateProfile(userId: string, data: UpdateProfileData) {
+    const user = await User.findById(userId);
+
+    if (!user) {
+      throw new AppError('User not found', 404);
+    }
+
+    // Check if email is being changed and if it's already taken
+    if (data.email && data.email !== user.email) {
+      const existingUser = await User.findOne({ email: data.email });
+      if (existingUser) {
+        throw new AppError('Email already in use', 400);
+      }
+    }
+
+    // Update fields
+    if (data.name) user.name = data.name;
+    if (data.email) user.email = data.email;
+    if (data.companyName !== undefined) user.companyName = data.companyName;
+    if (data.industry !== undefined) user.industry = data.industry;
+    if (data.teamSize !== undefined) user.teamSize = data.teamSize;
+    if (data.avatar !== undefined) user.avatar = data.avatar;
+
+    await user.save();
+
+    return {
+      id: user._id.toString(),
+      email: user.email,
+      name: user.name,
+      avatar: user.avatar,
+      companyName: user.companyName,
+      industry: user.industry,
+      teamSize: user.teamSize,
+      role: user.role,
+      onboarded: user.onboarded,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
     };
   }
 

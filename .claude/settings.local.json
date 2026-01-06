@@ -17,7 +17,8 @@
       "Bash(curl:*)",
       "Bash(npm run build:*)",
       "Bash(cat:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(npm run dev:*)"
     ]
   }
 }

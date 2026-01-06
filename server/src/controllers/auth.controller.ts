@@ -17,6 +17,15 @@ const loginSchema = z.object({
   password: z.string().min(1, 'Password is required'),
 });
 
+const updateProfileSchema = z.object({
+  name: z.string().min(2, 'Name must be at least 2 characters').optional(),
+  email: z.string().email('Invalid email format').optional(),
+  companyName: z.string().optional(),
+  industry: z.string().optional(),
+  teamSize: z.string().optional(),
+  avatar: z.string().url('Avatar must be a valid URL').optional(),
+});
+
 export class AuthController {
   async register(req: Request, res: Response) {
     const validationResult = registerSchema.safeParse(req.body);
@@ -53,6 +62,26 @@ export class AuthController {
       throw new AppError('User ID not found in request', 401);
     }
     const user = await authService.getMe(req.userId);
+    res.status(200).json({
+      status: 'success',
+      data: { user },
+    });
+  }
+
+  async updateMe(req: AuthRequest, res: Response) {
+    if (!req.userId) {
+      throw new AppError('User ID not found in request', 401);
+    }
+
+    const validationResult = updateProfileSchema.safeParse(req.body);
+    if (!validationResult.success) {
+      throw new AppError(
+        validationResult.error.errors[0].message,
+        400
+      );
+    }
+
+    const user = await authService.updateProfile(req.userId, validationResult.data);
     res.status(200).json({
       status: 'success',
       data: { user },

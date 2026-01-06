@@ -6,6 +6,7 @@ import {
   Settings,
   Zap,
   Users,
+  UserCircle,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
@@ -21,6 +22,7 @@ const adminNavigation = [
 ];
 
 const bottomNavigation = [
+  { name: 'Profile', href: '/profile', icon: UserCircle },
   { name: 'Settings', href: '/settings', icon: Settings },
 ];
 
@@ -50,7 +52,7 @@ export function Sidebar() {
             </div>
             <div>
               <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-accent-purple-600 bg-clip-text text-transparent">
-                SynxCalz
+                Nuvacure Flow
               </h1>
               <p className="text-xs text-muted-foreground">AI Lead Automation</p>
             </div>

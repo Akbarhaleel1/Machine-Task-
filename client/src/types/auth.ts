@@ -17,6 +17,7 @@ export interface User {
   companyName?: string | null;
   industry?: string | null;
   teamSize?: string | null;
+  avatar?: string | null;
   role: string;
   onboarded: boolean;
   createdAt: string;

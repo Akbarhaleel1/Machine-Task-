@@ -8,6 +8,7 @@ import { ProjectsPage } from './pages/projects';
 import { ProjectBoardPage } from './pages/project-board';
 import { CreateProjectPage } from './pages/create-project';
 import { UsersPage } from './pages/users';
+import { ProfilePage } from './pages/profile';
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
           <Route path="/projects" element={<ProjectsPage />} />
           <Route path="/project-board" element={<ProjectBoardPage />} />
           <Route path="/create-project" element={<CreateProjectPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
           <Route
             path="/users"
             element={
