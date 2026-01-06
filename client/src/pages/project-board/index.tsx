@@ -10,6 +10,7 @@ import { AssigneeSelector } from '@/components/AssigneeSelector';
 import { tasks as tasksApi } from '@/lib/api/tasks';
 import type { Task } from '@/types/task';
 import { toast } from 'sonner';
+import { useSocket } from '@/context/socket-context';
 import {
   DndContext,
   DragOverlay,
@@ -190,6 +191,7 @@ function Column({ title, tasks, color, status, onAddTask, activeTaskId, onAssign
 export function ProjectBoardPage() {
   const [searchParams] = useSearchParams();
   const projectId = searchParams.get('project');
+  const { socket, isConnected } = useSocket();
 
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -233,6 +235,59 @@ export function ProjectBoardPage() {
       fetchTasks();
     }
   }, [projectId, fetchTasks]);
+
+  // Socket.IO real-time updates
+  useEffect(() => {
+    if (!socket || !isConnected || !projectId) return;
+
+    // Join the project room
+    socket.emit('project:join', projectId);
+    console.log('🔌 Joined project room:', projectId);
+
+    // Listen for task created events
+    const handleTaskCreated = (newTask: Task) => {
+      console.log('📥 Task created:', newTask);
+      setTasks((prevTasks) => {
+        // Check if task already exists to avoid duplicates
+        if (prevTasks.some(t => t._id === newTask._id)) {
+          return prevTasks;
+        }
+        return [...prevTasks, newTask];
+      });
+      toast.success('New task added!', {
+        description: newTask.title,
+      });
+    };
+
+    // Listen for task updated events (including drag and drop)
+    const handleTaskUpdated = (updatedTask: Task) => {
+      console.log('📝 Task updated:', updatedTask);
+      setTasks((prevTasks) =>
+        prevTasks.map((t) => (t._id === updatedTask._id ? updatedTask : t))
+      );
+    };
+
+    // Listen for task deleted events
+    const handleTaskDeleted = (data: { _id: string }) => {
+      console.log('🗑️ Task deleted:', data._id);
+      setTasks((prevTasks) => prevTasks.filter((t) => t._id !== data._id));
+      toast.info('Task deleted');
+    };
+
+    // Attach event listeners
+    socket.on('task:created', handleTaskCreated);
+    socket.on('task:updated', handleTaskUpdated);
+    socket.on('task:deleted', handleTaskDeleted);
+
+    // Cleanup function
+    return () => {
+      socket.off('task:created', handleTaskCreated);
+      socket.off('task:updated', handleTaskUpdated);
+      socket.off('task:deleted', handleTaskDeleted);
+      socket.emit('project:leave', projectId);
+      console.log('🔌 Left project room:', projectId);
+    };
+  }, [socket, isConnected, projectId]);
 
   const handleAddTask = (status: string) => {
     setSelectedStatus(status as 'TODO' | 'IN_PROGRESS' | 'IN_REVIEW' | 'DONE');

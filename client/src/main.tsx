@@ -8,6 +8,7 @@ import App from './App.tsx'
 import { ThemeProvider } from './context/theme-context'
 import { AuthProvider } from './context/auth-context'
 import { ProjectProvider } from './context/project-context'
+import { SocketProvider } from './context/socket-context'
 
 // Create a client
 const queryClient = new QueryClient({
@@ -26,11 +27,13 @@ createRoot(document.getElementById('root')!).render(
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <AuthProvider>
-          <ProjectProvider>
-            <App />
-            <Toaster position="top-right" richColors />
-            <ReactQueryDevtools initialIsOpen={false} />
-          </ProjectProvider>
+          <SocketProvider>
+            <ProjectProvider>
+              <App />
+              <Toaster position="top-right" richColors />
+              <ReactQueryDevtools initialIsOpen={false} />
+            </ProjectProvider>
+          </SocketProvider>
         </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>

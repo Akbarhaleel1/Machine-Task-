@@ -4,6 +4,7 @@ import type { User, LoginData, RegisterData } from '@/types/auth';
 
 interface AuthContextType {
   user: User | null;
+  token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (credentials: LoginData) => Promise<void>;
@@ -68,6 +69,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     <AuthContext.Provider
       value={{
         user,
+        token: localStorage.getItem('auth_token'),
         isAuthenticated: !!user,
         isLoading,
         login,

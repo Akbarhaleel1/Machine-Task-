@@ -15,7 +15,9 @@
       "Bash(findstr:*)",
       "Bash(test:*)",
       "Bash(curl:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(cat:*)",
+      "Bash(npm install:*)"
     ]
   }
 }
