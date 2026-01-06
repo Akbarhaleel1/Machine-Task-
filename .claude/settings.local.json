@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir /b \"d:\\\\Mechine Task\")",
+      "Bash(pnpm install:*)",
+      "Bash(pnpm add:*)",
+      "Bash(pnpm remove:*)",
+      "Bash(pnpm run dev:*)",
+      "Bash(taskkill:*)",
+      "Bash(cmd //c \"taskkill /F /PID 3680\")",
+      "Bash(cmd //c \"FOR /F \"\"tokens=5\"\" %P IN \\(''netstat -ano ^| findstr \"\":3000.*LISTENING\"\"''\\) DO taskkill /F /PID %P\")",
+      "Bash(timeout:*)",
+      "Bash(dir:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(test:*)",
+      "Bash(curl:*)",
+      "Bash(npm run build:*)"
+    ]
+  }
+}

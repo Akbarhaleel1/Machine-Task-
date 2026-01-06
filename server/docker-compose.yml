@@ -10,6 +10,16 @@ services:
       - mongodb_data:/data/db
     restart: always
 
+  redis:
+    image: redis:7-alpine
+    container_name: synxcalz-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: always
+    command: redis-server --appendonly yes
+
   mongo-express:
     image: mongo-express
     container_name: synxcalz-mongo-express
@@ -24,3 +34,4 @@ services:
 
 volumes:
   mongodb_data:
+  redis_data:

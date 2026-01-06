@@ -1,0 +1,121 @@
+version: '3.8'
+
+services:
+  # Main API Server
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      MONGODB_URI: mongodb://mongo:27017/project-management
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      JWT_SECRET: ${JWT_SECRET}
+      CLIENT_URL: ${CLIENT_URL}
+    depends_on:
+      - mongo
+      - redis
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  # Background Job Worker
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: node dist/workers/index.js
+    environment:
+      NODE_ENV: production
+      MONGODB_URI: mongodb://mongo:27017/project-management
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    depends_on:
+      - mongo
+      - redis
+    restart: unless-stopped
+    networks:
+      - app-network
+    deploy:
+      replicas: 2  # Run 2 worker instances for high availability
+
+  # MongoDB Database
+  mongo:
+    image: mongo:7
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
+    environment:
+      MONGO_INITDB_DATABASE: project-management
+    restart: unless-stopped
+    networks:
+      - app-network
+    command: mongod --replSet rs0
+
+  # MongoDB Replica Set Initialization
+  mongo-init:
+    image: mongo:7
+    depends_on:
+      - mongo
+    restart: "no"
+    networks:
+      - app-network
+    entrypoint:
+      [
+        "bash",
+        "-c",
+        "sleep 10 && mongosh --host mongo:27017 --eval 'rs.initiate({_id:\"rs0\",members:[{_id:0,host:\"mongo:27017\"}]})' && sleep 5"
+      ]
+
+  # Redis Cache & Queue
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+    networks:
+      - app-network
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
+
+  # Redis Commander (Optional - for debugging)
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    ports:
+      - "8081:8081"
+    depends_on:
+      - redis
+    networks:
+      - app-network
+
+  # Mongo Express (Optional - for debugging)
+  mongo-express:
+    image: mongo-express:latest
+    ports:
+      - "8082:8081"
+    environment:
+      ME_CONFIG_MONGODB_URL: mongodb://mongo:27017/
+      ME_CONFIG_BASICAUTH_USERNAME: admin
+      ME_CONFIG_BASICAUTH_PASSWORD: admin123
+    depends_on:
+      - mongo
+    networks:
+      - app-network
+
+volumes:
+  mongo-data:
+    driver: local
+  redis-data:
+    driver: local
+
+networks:
+  app-network:
+    driver: bridge

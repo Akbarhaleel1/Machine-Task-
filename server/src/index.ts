@@ -11,12 +11,19 @@ dotenv.config();
 // Import routes
 import authRoutes from './routes/auth.routes';
 import projectRoutes from './routes/project.routes';
+import projectRoutesEnhanced from './routes/project.routes.enhanced';
 import taskRoutes from './routes/task.routes';
+import userRoutes from './routes/user.routes';
 
 // Import middleware
 import { errorHandler } from './middleware/error.middleware';
 import connectDatabase from './config/database/connection';
 import { initializeSocket } from './config/socket';
+import { connectRedis } from './config/redis';
+
+// Import workers (background job processors)
+// Note: Workers require Redis. Uncomment when Redis is available.
+// import './workers';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -39,7 +46,9 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
+app.use('/api/projects-v2', projectRoutesEnhanced);
 app.use('/api/tasks', taskRoutes);
+app.use('/api/users', userRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -50,7 +59,13 @@ app.get('/api/health', (req, res) => {
 app.use(errorHandler);
 
 const startServer = async () => {
+  // Initialize database connection
   await connectDatabase();
+
+  // Initialize Redis connection (optional - server will work without it)
+  connectRedis().catch(() => {
+    console.log('⚠️  Server starting without Redis - some features will be unavailable');
+  });
 
   httpServer.listen(PORT, () => {
     console.log(`🚀 Server is running on http://localhost:${PORT}`);
